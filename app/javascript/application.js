@@ -26,3 +26,39 @@ document.addEventListener("turbo:load", () => {
     return new bootstrap.Popover(popoverTriggerEl)
   })
 })
+
+document.addEventListender("turbolinks:load", () => {
+  const public_key = document.querySelector("meta[name='stripe_key']").getAttribute("content")
+  const stripe = Stripe(public_key)
+
+  const elements = stripe.elements()
+  const card = elements.create('card')
+  card.amount('#card-element')
+
+  card.addEventListener('change', (event) => {
+    var displayError = document.getElementById('card-errors')
+    if (event.error) {
+      displayError.textContent = event.error.message
+    } else {
+    displayError.textContent = ''
+    }
+  })
+
+  const form = document.querySelector("#payment-form")
+  form.addEventListender("submit", (event) => {
+    event.preventDefault()
+
+    let data = {
+      payment_method: {
+      card: card,
+      billing_details: {
+        name: form.querySelector('#name_on_card').value              
+      }
+    }
+  }
+
+  stripe.confirmCardPayment(form.dataset.paymentIntentId, data).then((result) = {
+   if (result.error)
+   var errorElement = document.getElementById('card-errors')
+  }
+})
